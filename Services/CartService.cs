@@ -11,8 +11,22 @@ namespace Joy_Delivery.Services
         public CartProductInfo AddProductToCartForUser(AddProductRequest addProductRequest)
         {
             var user = userService.FetchUserById(addProductRequest.UserId);
+            if (user is null)
+            {
+                throw new InvalidOperationException("User not found.");
+            }
+
             var cart = FetchCartForUser(user);
+            if (cart is null)
+            {
+                throw new InvalidOperationException("Cart not found.");
+            }
+
             var product = productService.GetProduct(addProductRequest.ProductId, addProductRequest.OutletId);
+            if (product is null)
+            {
+                throw new InvalidOperationException("Product not found.");
+            }
 
             cart.Products ??= [];
 
