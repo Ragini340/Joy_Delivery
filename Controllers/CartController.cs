@@ -1,7 +1,6 @@
 using Joy_Delivery.Dtos;
 using Joy_Delivery.Models;
 using Joy_Delivery.Services;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Joy_Delivery.Controllers

@@ -2,7 +2,7 @@ using Joy_Delivery.Services;
 
 namespace Joy_Delivery
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {

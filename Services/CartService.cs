@@ -24,7 +24,9 @@ namespace Joy_Delivery.Services
         public Cart? GetCartForUser(string userId) =>
             _userCarts.GetValueOrDefault(userId);
 
-        private Cart? FetchCartForUser(User user) =>
-            _userCarts.GetValueOrDefault(user.Id);
+        private Cart? FetchCartForUser(User user)
+        {
+            return _userCarts.GetValueOrDefault(user.Id);
+        }
     }
 }
