@@ -224,33 +224,42 @@ dotnet test
 
 ### CartService Tests
 
-* Add product successfully
-* Retrieve cart
-* Invalid user validation
-* Invalid product validation
-* Invalid cart validation
+- Add product successfully
+- Retrieve cart
+- Invalid user validation
+- Invalid product validation
+- Invalid cart validation
+- Selling price validation
 
 ### ProductService Tests
 
-* Valid product retrieval
-* Invalid product retrieval
-* Invalid outlet retrieval
-* Product search by name
-* Empty search result
-
-### ProductController Tests
-
-* Search endpoint returns HTTP 200
-* Search endpoint returns products
-* Search endpoint returns empty list
-* Case-insensitive search validation
+- Valid product retrieval
+- Invalid product retrieval
+- Invalid outlet retrieval
+- Product search by name
+- Empty search result
 
 ### UserService Tests
 
-* Existing user lookup
-* Invalid user lookup
+- Existing user lookup
+- Invalid user lookup
 
----
+### CartController Tests
+
+- Add product endpoint returns HTTP 200 OK
+- View cart endpoint returns HTTP 200 OK
+- Add product endpoint returns CartProductInfo response
+- View cart endpoint returns Cart response
+- Validates controller response objects
+
+### ProductController Tests
+
+- Search endpoint returns HTTP 200 OK
+- Search endpoint returns matching products
+- Search endpoint returns empty list for invalid product name
+- Search supports partial product name matching
+- Search supports case-insensitive product name matching
+- Validates controller response objects
 
 ## Error Handling
 
