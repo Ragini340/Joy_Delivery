@@ -144,7 +144,6 @@ The system:
 | Status Code               | Description                            |
 | ------------------------- | -------------------------------------- |
 | 200 OK                    | Products found or no matching products |
-| 400 Bad Request           | Invalid or empty search text           |
 | 500 Internal Server Error | Unexpected server error                |
 
 ---
@@ -204,10 +203,9 @@ GET /Product/search?name=Bread
 ### Responsibilities
 
 * Search grocery products by name
-* Support partial search
 * Support case-insensitive search
 * Return matching products
-* Return appropriate HTTP status codes
+* Return HTTP responses
 
 ---
 
@@ -290,8 +288,7 @@ var products =
 Responsibilities:
 
 * Search grocery products by name
-* Support partial matching
-* Support case-insensitive search
+* Support case-insensitive matching
 * Return matching inventory products
 
 ---
@@ -362,10 +359,10 @@ Example:
 
 ```csharp
 [TestMethod]
-public void AddProductToCart_ValidRequest_AddsProduct()
+public void SearchProductsByName_ExistingName_ReturnsProducts()
 {
     var result =
-        cartService.AddProductToCartForUser(request);
+        _productService.SearchProductsByName("Bread");
 
     Assert.IsNotNull(result);
 }
@@ -382,12 +379,13 @@ Implemented the minimum code required to pass the test.
 Example:
 
 ```csharp
-cart.Products.Add(product);
-
-return new CartProductInfo(
-    cart,
-    product,
-    product.SellingPrice);
+return _products
+    .Where(product =>
+        product.Name != null &&
+        product.Name.Contains(
+            productName,
+            StringComparison.OrdinalIgnoreCase))
+    .ToList();
 ```
 
 The test passed.
@@ -396,16 +394,7 @@ The test passed.
 
 ## 3. Refactor Phase
 
-Improved code quality.
-
-Added validations:
-
-```csharp
-if (user is null)
-{
-    throw new InvalidOperationException();
-}
-```
+Improved code quality and validations while ensuring all tests continued to pass.
 
 ### Benefits
 
@@ -435,14 +424,36 @@ Covered:
 
 ## ProductService Tests
 
+### Product Retrieval Tests
+
 Covered:
 
-* Existing product retrieval
-* Invalid product
-* Invalid outlet
-* Search product by name
-* Search using partial product name
-* Search with no matching products
+* Get product using valid product ID and outlet ID
+* Return null when product does not exist
+* Return null when outlet does not exist
+
+Example:
+
+```csharp
+[TestMethod]
+public void GetProduct_ValidProductAndOutlet_ReturnsProduct()
+{
+    var result =
+        _productService.GetProduct(
+            "product101",
+            "store101");
+
+    Assert.IsNotNull(result);
+}
+```
+
+### Product Search Tests
+
+Covered:
+
+* Search existing product by name
+* Return matching product list
+* Return empty list for invalid product name
 
 Example:
 
@@ -451,9 +462,23 @@ Example:
 public void SearchProductsByName_ExistingName_ReturnsProducts()
 {
     var result =
-        service.SearchProductsByName("Bread");
+        _productService.SearchProductsByName("Bread");
 
+    Assert.IsNotNull(result);
     Assert.AreEqual(1, result.Count);
+}
+```
+
+Example:
+
+```csharp
+[TestMethod]
+public void SearchProductsByName_InvalidName_ReturnsEmpty()
+{
+    var result =
+        _productService.SearchProductsByName("Chocolate");
+
+    Assert.AreEqual(0, result.Count);
 }
 ```
 
@@ -468,23 +493,41 @@ Covered:
 
 ---
 
-## Controller Tests
+## ProductController Tests
 
 Covered:
 
-* HTTP response validation
-* Successful requests
-* Response object verification
-* Cart endpoints
-* Product search endpoint
+* Returns HTTP 200 OK for valid search requests
+* Returns matching products when product exists
+* Returns empty list when product does not exist
+* Supports partial product name search
+* Supports case-insensitive search
 
 Example:
 
 ```csharp
-Assert.IsInstanceOfType(
-    result,
-    typeof(OkObjectResult));
+[TestMethod]
+public void Search_ValidProductName_ReturnsOkResult()
+{
+    var result =
+        _controller.Search("Bread");
+
+    Assert.IsInstanceOfType(
+        result.Result,
+        typeof(OkObjectResult));
+}
 ```
+
+---
+
+## CartController Tests
+
+Covered:
+
+* View cart endpoint returns HTTP 200
+* Add product endpoint returns HTTP 200
+* Correct response object returned
+* Cart information returned successfully
 
 ---
 
