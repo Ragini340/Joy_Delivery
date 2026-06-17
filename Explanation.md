@@ -509,18 +509,3 @@ Cart not found
 This makes the API predictable, maintainable, and production-friendly.
 
 ---
-
-# My Contributions
-
-I worked on:
-
-* Designing REST APIs
-* Implementing cart management functionality
-* Implementing grocery product search functionality
-* Creating service-layer business logic
-* Adding validation and exception handling
-* Writing MSTest unit tests
-* Following Test Driven Development (TDD)
-* Improving maintainability and scalability
-
----
