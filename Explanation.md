@@ -1,14 +1,12 @@
-﻿# Joy Delivery – Project Explanation
+﻿## Project Overview
 
-## Project Overview
+### Welcome to JOY Delivery
 
-**Welcome to JOI Delivery**
-
-JOI Delivery is a hyperlocal food and grocery delivery platform designed for real-life needs. It helps customers get food and essentials delivered quickly, conveniently, and reliably.
+JOY Delivery is a hyperlocal food and grocery delivery platform designed for real-life needs. It helps customers get food and essentials delivered quickly, conveniently, and reliably.
 
 The platform is built around everyday situations — a working professional returning home late, a student needing groceries before an exam, or anyone who needs essential items without spending time shopping.
 
-JOI Delivery brings food and groceries to customers’ doors through a seamless digital experience.
+JOY Delivery brings food and groceries to customers’ doors through a seamless digital experience.
 
 The application focuses on:
 
@@ -17,6 +15,8 @@ The application focuses on:
 * Easy ordering experience
 * Reliable local vendors
 * Better customer satisfaction
+
+---
 
 ## Problem Statement
 
@@ -28,13 +28,13 @@ Customers commonly face challenges such as:
 * Payment failures during checkout
 * Lack of proper feedback channels
 
-JOI Delivery addresses these problems by providing a technology-first delivery platform connecting customers with nearby stores and restaurants.
+JOY Delivery addresses these problems by providing a technology-first delivery platform connecting customers with nearby stores and restaurants.
 
 ---
 
 # Business Vision
 
-JOI Delivery aims to:
+JOY Delivery aims to:
 
 * Provide unmatched customer experience
 * Improve delivery efficiency
@@ -47,29 +47,28 @@ The platform is designed to support increasing customer demand, smarter logistic
 
 # Application Overview
 
-**Technology Stack**
+## Technology Stack
 
 * Backend: ASP.NET Core Web API
 * Language: C#
 * Testing: MSTest
-* BDD: SpecFlow + Gherkin
 * Architecture: Layered Architecture
 
 ---
 
 # Core Features Implemented
 
-## Customer Features
-
-### 1. View Cart
+## 1. View Cart
 
 Users can view their existing cart.
 
-Example:
+### Example Request
 
-```
+```http
 GET /Cart/view?userId=user101
 ```
+
+### Response
 
 The API returns:
 
@@ -77,11 +76,17 @@ The API returns:
 * Outlet information
 * Products added
 
-### 2. Add Product To Cart
+---
+
+## 2. Add Product To Cart
 
 Users can add grocery products from a specific store.
 
-Example request:
+### Example Request
+
+```http
+POST /Cart/product
+```
 
 ```json
 {
@@ -91,96 +96,220 @@ Example request:
 }
 ```
 
+### Flow
+
 The system:
 
 1. Validates user
 2. Finds user cart
 3. Validates product
-4. Adds product
+4. Adds product to cart
 5. Returns updated cart information
+
+---
+
+## 3. Search Grocery Products By Name
+
+Users can search grocery products using a complete or partial product name.
+
+### Example Request
+
+```http
+GET /Product/search?name=Bread
+```
+
+### Example Response
+
+```json
+[
+  {
+    "id": "product101",
+    "name": "Wheat Bread",
+    "maxRecommendedPrice": 10.5
+  }
+]
+```
+
+### Flow
+
+The system:
+
+1. Accepts a product name
+2. Searches inventory using a case-insensitive comparison
+3. Finds matching products
+4. Returns all matching products
+
+### Status Codes
+
+| Status Code               | Description                            |
+| ------------------------- | -------------------------------------- |
+| 200 OK                    | Products found or no matching products |
+| 400 Bad Request           | Invalid or empty search text           |
+| 500 Internal Server Error | Unexpected server error                |
 
 ---
 
 # Architecture Explanation
 
-The project follows layered architecture.
+The project follows a layered architecture pattern.
 
-## Controller Layer
-
-Responsible for handling API requests.
-
-Example:
-
-CartController
-
-Endpoints:
-
+```text
+Controller Layer
+       ↓
+Service Layer
+       ↓
+Models / DTOs
+       ↓
+Seed Data
 ```
+
+---
+
+# Controller Layer
+
+Responsible for handling API requests and responses.
+
+## CartController
+
+### Endpoints
+
+```http
 POST /Cart/product
 
 GET /Cart/view
 ```
 
-Responsibilities:
+### Responsibilities
 
-* Accept client request
+* Accept client requests
 * Call service layer
-* Return HTTP response
+* Return HTTP responses
 
 ---
 
-## Service Layer
+## ProductController
 
-Contains business logic.
+### Endpoint
 
-### CartService
+```http
+GET /Product/search?name={productName}
+```
 
-Responsibilities:
+### Example
+
+```http
+GET /Product/search?name=Bread
+```
+
+### Responsibilities
+
+* Search grocery products by name
+* Support partial search
+* Support case-insensitive search
+* Return matching products
+* Return appropriate HTTP status codes
+
+---
+
+# Service Layer
+
+Contains the core business logic of the application.
+
+---
+
+## CartService
+
+### Responsibilities
 
 * Manage cart operations
 * Validate users
+* Validate carts
 * Validate products
 * Add products into cart
 
-Example validation:
+### Validation Logic
 
 ```csharp
-if(user is null)
+if (user is null)
 {
     throw new InvalidOperationException("User not found.");
 }
 
-if(product is null)
+if (cart is null)
+{
+    throw new InvalidOperationException("Cart not found.");
+}
+
+if (product is null)
 {
     throw new InvalidOperationException("Product not found.");
 }
+```
+
+### Add Product Flow
+
+```csharp
+cart.Products.Add(product);
+
+return new CartProductInfo(
+    cart,
+    product,
+    product.SellingPrice);
 ```
 
 ---
 
 ## ProductService
 
-Responsible for retrieving products.
+Responsible for product retrieval and search operations.
 
-Example:
+### Get Product
 
 ```csharp
 GetProduct(productId, outletId)
 ```
 
-It verifies that the product belongs to the requested outlet.
+Purpose:
+
+* Retrieve product by ID
+* Verify outlet ownership
+
+### Search Products
+
+```csharp
+SearchProductsByName(productName)
+```
+
+Example:
+
+```csharp
+var products =
+    productService.SearchProductsByName("Bread");
+```
+
+Responsibilities:
+
+* Search grocery products by name
+* Support partial matching
+* Support case-insensitive search
+* Return matching inventory products
 
 ---
 
 ## UserService
 
-Responsible for user lookup.
+Responsible for user lookup operations.
 
-Example:
+### Example
 
 ```csharp
 FetchUserById(userId)
 ```
+
+Responsibilities:
+
+* Retrieve users
+* Validate user existence
 
 ---
 
@@ -192,12 +321,16 @@ FetchUserById(userId)
 | ------- | ---------- | --------- |
 | user101 | John       | Doe       |
 
+---
+
 ## Stores
 
 | StoreId  | Store Name     |
 | -------- | -------------- |
 | store101 | Fresh Picks    |
 | store102 | Natural Choice |
+
+---
 
 ## Products
 
@@ -211,17 +344,19 @@ FetchUserById(userId)
 
 # TDD Approach
 
-I followed Test Driven Development.
+I followed Test Driven Development (TDD).
 
-TDD cycle:
+## TDD Cycle
 
-```
+```text
 Red → Green → Refactor
 ```
 
+---
+
 ## 1. Red Phase
 
-First I created test cases before implementing functionality.
+Created tests before implementing functionality.
 
 Example:
 
@@ -242,7 +377,7 @@ Initially the test failed.
 
 ## 2. Green Phase
 
-Implemented minimum code required.
+Implemented the minimum code required to pass the test.
 
 Example:
 
@@ -255,44 +390,48 @@ return new CartProductInfo(
     product.SellingPrice);
 ```
 
-The test started passing.
+The test passed.
 
 ---
 
 ## 3. Refactor Phase
 
-Improved the implementation.
+Improved code quality.
 
 Added validations:
 
 ```csharp
-if(user is null)
+if (user is null)
 {
     throw new InvalidOperationException();
 }
 ```
 
-Benefits:
+### Benefits
 
 * Better error handling
 * Cleaner code
-* Easier maintenance
+* Improved maintainability
+* Easier debugging
 
 ---
 
 # MSTest Coverage
 
-Created unit tests for:
+Created unit tests for all major components.
 
 ## CartService Tests
 
 Covered:
 
 * Add product successfully
+* Retrieve existing cart
 * Invalid user
 * Invalid product
-* View cart
+* Invalid cart
 * Selling price validation
+
+---
 
 ## ProductService Tests
 
@@ -301,61 +440,51 @@ Covered:
 * Existing product retrieval
 * Invalid product
 * Invalid outlet
+* Search product by name
+* Search using partial product name
+* Search with no matching products
+
+Example:
+
+```csharp
+[TestMethod]
+public void SearchProductsByName_ExistingName_ReturnsProducts()
+{
+    var result =
+        service.SearchProductsByName("Bread");
+
+    Assert.AreEqual(1, result.Count);
+}
+```
+
+---
 
 ## UserService Tests
 
 Covered:
 
 * Existing user lookup
-* Invalid user
+* Invalid user lookup
+
+---
 
 ## Controller Tests
 
 Covered:
 
-* API response status
-* Returned objects
+* HTTP response validation
+* Successful requests
+* Response object verification
 * Cart endpoints
+* Product search endpoint
 
 Example:
 
 ```csharp
 Assert.IsInstanceOfType(
-result,
-typeof(OkObjectResult));
+    result,
+    typeof(OkObjectResult));
 ```
-
----
-
-# BDD Approach (SpecFlow)
-
-For business behavior validation, I implemented BDD using SpecFlow.
-
-BDD follows:
-
-```
-Given → When → Then
-```
-
-Example:
-
-```gherkin
-Scenario: Add product to cart successfully
-
-Given a user with id "user101" exists
-
-And a product with id "product101" exists
-
-When the user adds the product to the cart
-
-Then the product should be added
-```
-
-BDD benefits:
-
-* Business readable tests
-* Better collaboration
-* Validates real user scenarios
 
 ---
 
@@ -363,41 +492,35 @@ BDD benefits:
 
 Initially invalid data could cause runtime exceptions.
 
-Improved behavior:
+### Before
 
-Before:
-
-```
+```text
 NullReferenceException
 ```
 
-After:
+### After
 
-```
+```text
 User not found
 Product not found
 Cart not found
 ```
 
-This makes the API predictable and production friendly.
+This makes the API predictable, maintainable, and production-friendly.
 
 ---
 
-# My Contribution
+# My Contributions
 
 I worked on:
 
 * Designing REST APIs
-* Implementing cart management
-* Creating service layer logic
-* Adding validation
+* Implementing cart management functionality
+* Implementing grocery product search functionality
+* Creating service-layer business logic
+* Adding validation and exception handling
 * Writing MSTest unit tests
-* Creating SpecFlow BDD scenarios
-* Following TDD methodology
-* Improving maintainability and error handling
+* Following Test Driven Development (TDD)
+* Improving maintainability and scalability
 
 ---
-
-# Short Interview Summary
-
-"Joy Delivery is a grocery and food delivery Web API built using ASP.NET Core. I implemented cart management functionality where users can add products and view carts. The application follows layered architecture with Controllers, Services, DTOs, and Models. I followed TDD by writing MSTest cases first, implementing functionality, and then refactoring. I also created BDD scenarios using SpecFlow and Gherkin to validate business workflows. The focus was clean architecture, reliable APIs, and maintainable code."
