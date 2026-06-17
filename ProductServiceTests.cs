@@ -1,57 +1,38 @@
 ﻿using Joy_Delivery.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Joy_Delivery.Tests.Services
+namespace Joi_Delivery.Tests
 {
     [TestClass]
     public class ProductServiceTests
     {
-        private ProductService _productService = null!;
-
-        [TestInitialize]
-        public void Setup()
-        {
-            _productService = new ProductService();
-        }
-
         [TestMethod]
-        public void GetProduct_ValidProductAndOutlet_ReturnsProduct()
+        public void SearchProductsByName_ExistingName_ReturnsProducts()
         {
             // Arrange
-            var productId = "product101";
-            var outletId = "store101";
+            var service = new ProductService();
 
             // Act
-            var result = _productService.GetProduct(productId, outletId);
+            var result =
+                service.SearchProductsByName("Bread");
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(productId, result.Id);
-            Assert.AreEqual(outletId, result.Store?.Id);
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(
+                "Wheat Bread",
+                result[0].Name);
         }
 
-        [TestMethod]
-        public void GetProduct_InvalidProduct_ReturnsNull()
-        {
-            // Act
-            var result = _productService.GetProduct(
-                "invalid-product",
-                "store101");
-
-            // Assert
-            Assert.IsNull(result);
-        }
 
         [TestMethod]
-        public void GetProduct_InvalidOutlet_ReturnsNull()
+        public void SearchProductsByName_InvalidName_ReturnsEmpty()
         {
-            // Act
-            var result = _productService.GetProduct(
-                "product101",
-                "invalid-store");
+            var service = new ProductService();
 
-            // Assert
-            Assert.IsNull(result);
+            var result =
+                service.SearchProductsByName("Chocolate");
+
+            Assert.AreEqual(0, result.Count);
         }
     }
 }
