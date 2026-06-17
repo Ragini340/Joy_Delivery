@@ -10,5 +10,13 @@ namespace Joy_Delivery.Services
         public GroceryProduct? GetProduct(string productId, string outletId) =>
             _products.FirstOrDefault(p =>
                 p.Id == productId && p.Store?.Id == outletId);
+
+        public List<GroceryProduct> SearchProductsByName(string productName)
+        {
+            if (string.IsNullOrWhiteSpace(productName)) {
+                return [];
+            }
+            return _products.Where(p => p.Name != null && p.Name.Contains(productName, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
     }
 }
